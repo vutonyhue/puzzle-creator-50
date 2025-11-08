@@ -21,23 +21,33 @@ const Profile = () => {
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate('/auth');
-        return;
-      }
-      setCurrentUserId(session.user.id);
       
-      // If userId param exists, view that profile, otherwise view own profile
-      const profileId = userId || session.user.id;
-      setIsOwnProfile(profileId === session.user.id);
+      if (session) {
+        setCurrentUserId(session.user.id);
+      }
+      
+      // If userId param exists, view that profile, otherwise view own profile or redirect to auth
+      let profileId = userId;
+      if (!userId) {
+        if (session) {
+          profileId = session.user.id;
+        } else {
+          navigate('/auth');
+          return;
+        }
+      }
+      
+      setIsOwnProfile(session ? profileId === session.user.id : false);
       fetchProfile(profileId);
     };
 
     checkAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!session) {
-        navigate('/auth');
+      if (session) {
+        setCurrentUserId(session.user.id);
+      } else {
+        setCurrentUserId('');
       }
     });
 

@@ -5,6 +5,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { CreatePost } from '@/components/feed/CreatePost';
 import { PostCard } from '@/components/feed/PostCard';
 import { Skeleton } from '@/components/ui/skeleton';
+import { HonorBoard } from '@/components/feed/HonorBoard';
 
 const Feed = () => {
   const navigate = useNavigate();
@@ -15,19 +16,19 @@ const Feed = () => {
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate('/auth');
-        return;
+      if (session) {
+        setCurrentUserId(session.user.id);
       }
-      setCurrentUserId(session.user.id);
       fetchPosts();
     };
 
     checkAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!session) {
-        navigate('/auth');
+      if (session) {
+        setCurrentUserId(session.user.id);
+      } else {
+        setCurrentUserId('');
       }
     });
 
@@ -58,30 +59,50 @@ const Feed = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="container max-w-2xl py-4 sm:py-8 px-4 sm:px-6">
-        <CreatePost onPostCreated={fetchPosts} />
-        
-        {loading ? (
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-48 w-full" />
-            ))}
-          </div>
-        ) : posts.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">No posts yet. Be the first to share!</p>
-          </div>
-        ) : (
-          posts.map((post) => (
-            <PostCard
-              key={post.id}
-              post={post}
-              currentUserId={currentUserId}
-              onPostDeleted={fetchPosts}
-            />
-          ))
-        )}
-      </main>
+      <div className="container max-w-7xl mx-auto py-4 sm:py-8 px-4 sm:px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr,380px] gap-6">
+          {/* Main Feed */}
+          <main className="max-w-2xl">
+            {currentUserId && <CreatePost onPostCreated={fetchPosts} />}
+            
+            {!currentUserId && (
+              <div className="mb-6 p-4 bg-primary/5 border border-primary/20 rounded-lg text-center">
+                <p className="text-sm text-muted-foreground">
+                  Đăng nhập để tạo bài viết và tương tác
+                </p>
+              </div>
+            )}
+            
+            {loading ? (
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-48 w-full" />
+                ))}
+              </div>
+            ) : posts.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">Chưa có bài viết nào. Hãy là người đầu tiên chia sẻ!</p>
+              </div>
+            ) : (
+              posts.map((post) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  currentUserId={currentUserId}
+                  onPostDeleted={fetchPosts}
+                />
+              ))
+            )}
+          </main>
+
+          {/* Honor Board Sidebar - Hidden on mobile */}
+          <aside className="hidden lg:block">
+            <div className="sticky top-4">
+              <HonorBoard />
+            </div>
+          </aside>
+        </div>
+      </div>
     </div>
   );
 };
