@@ -6,6 +6,7 @@ import { CreatePost } from '@/components/feed/CreatePost';
 import { PostCard } from '@/components/feed/PostCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { HonorBoard } from '@/components/feed/HonorBoard';
+import { LeftSidebar } from '@/components/feed/LeftSidebar';
 
 const Feed = () => {
   const navigate = useNavigate();
@@ -60,9 +61,16 @@ const Feed = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="container max-w-7xl mx-auto py-4 sm:py-8 px-4 sm:px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr,380px] gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[320px,1fr,380px] gap-6">
+          {/* Left Sidebar - Hidden on mobile */}
+          <aside className="hidden lg:block">
+            <div className="sticky top-4">
+              <LeftSidebar />
+            </div>
+          </aside>
+
           {/* Main Feed */}
-          <main className="max-w-2xl">
+          <main className="max-w-2xl mx-auto w-full">
             {currentUserId && <CreatePost onPostCreated={fetchPosts} />}
             
             {!currentUserId && (

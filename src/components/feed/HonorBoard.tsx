@@ -22,6 +22,8 @@ export const HonorBoard = () => {
   const [topPosts, setTopPosts] = useState<LeaderboardUser[]>([]);
   const [topComments, setTopComments] = useState<LeaderboardUser[]>([]);
   const [topReactions, setTopReactions] = useState<LeaderboardUser[]>([]);
+  const [topFriends, setTopFriends] = useState<LeaderboardUser[]>([]);
+  const [topRewards, setTopRewards] = useState<LeaderboardUser[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -124,6 +126,10 @@ export const HonorBoard = () => {
       setTopPosts(topPostsUsers);
       setTopComments(topCommentsUsers);
       setTopReactions(topReactionsUsers);
+      
+      // For now, Friends and Rewards are placeholders (future implementation)
+      setTopFriends([]);
+      setTopRewards([]);
     } catch (error) {
       console.error('Error fetching leaderboards:', error);
     } finally {
@@ -144,6 +150,53 @@ export const HonorBoard = () => {
     );
   }
 
+  const renderTopUser = (user: LeaderboardUser | undefined, icon: any, label: string, count: number) => {
+    if (!user) {
+      return (
+        <div 
+          className="flex items-center justify-between p-3 bg-white/10 rounded-lg backdrop-blur-sm"
+        >
+          <div className="flex items-center gap-3 flex-1">
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20">
+              {icon}
+            </div>
+            <div>
+              <p className="text-sm font-medium">{label}</p>
+              <p className="text-xs text-white/70">Chưa có dữ liệu</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-lg font-bold">0</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div 
+        onClick={() => handleUserClick(user.id)}
+        className="flex items-center justify-between p-3 bg-white/10 rounded-lg backdrop-blur-sm hover:bg-white/20 transition-colors cursor-pointer"
+      >
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <Avatar className="w-10 h-10 border-2 border-white/30">
+            <AvatarImage src={user.avatar_url} />
+            <AvatarFallback className="text-xs bg-primary text-primary-foreground">
+              {user.username?.[0]?.toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium truncate">{user.username}</p>
+            <p className="text-xs text-white/70">{label}</p>
+          </div>
+        </div>
+        <div className="text-right ml-2">
+          <p className="text-lg font-bold">{count}</p>
+          <p className="text-xs text-white/70">TOP 1</p>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-4">
       {/* Honor Board */}
@@ -155,56 +208,36 @@ export const HonorBoard = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 pb-4">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between p-2 bg-white/10 rounded-lg backdrop-blur-sm">
-              <div className="flex items-center gap-2">
-                <FileText className="w-4 h-4" />
-                <span className="text-sm font-medium">TOP</span>
-              </div>
-              <div className="font-mono text-sm font-bold">
-                {topPosts[0]?.posts_count || 0}
-              </div>
-            </div>
-            <div className="flex items-center justify-between p-2 bg-white/10 rounded-lg backdrop-blur-sm">
-              <div className="flex items-center gap-2">
-                <MessageCircle className="w-4 h-4" />
-                <span className="text-sm font-medium">PHU NHAT</span>
-              </div>
-              <div className="font-mono text-sm font-bold">
-                {topComments[0]?.comments_count || 0}
-              </div>
-            </div>
-            <div className="flex items-center justify-between p-2 bg-white/10 rounded-lg backdrop-blur-sm">
-              <div className="flex items-center gap-2">
-                <ThumbsUp className="w-4 h-4" />
-                <span className="text-sm font-medium">BAI VIET</span>
-              </div>
-              <div className="font-mono text-sm font-bold">
-                {topPosts.reduce((acc, user) => acc + user.posts_count, 0)}
-              </div>
-            </div>
-            <div className="flex items-center justify-between p-2 bg-white/10 rounded-lg backdrop-blur-sm">
-              <div className="flex items-center gap-2">
-                <FileText className="w-4 h-4" />
-                <span className="text-sm font-medium">VIDEO</span>
-              </div>
-              <div className="font-mono text-sm font-bold">0</div>
-            </div>
-            <div className="flex items-center justify-between p-2 bg-white/10 rounded-lg backdrop-blur-sm">
-              <div className="flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                <span className="text-sm font-medium">BAN BE</span>
-              </div>
-              <div className="font-mono text-sm font-bold">0</div>
-            </div>
-            <div className="flex items-center justify-between p-2 bg-white/10 rounded-lg backdrop-blur-sm">
-              <div className="flex items-center gap-2">
-                <Coins className="w-4 h-4" />
-                <span className="text-sm font-medium">SO NFT</span>
-              </div>
-              <div className="font-mono text-sm font-bold">0</div>
-            </div>
-          </div>
+          {renderTopUser(
+            topPosts[0],
+            <FileText className="w-5 h-5" />,
+            "Posts",
+            topPosts[0]?.posts_count || 0
+          )}
+          {renderTopUser(
+            topComments[0],
+            <MessageCircle className="w-5 h-5" />,
+            "Comments",
+            topComments[0]?.comments_count || 0
+          )}
+          {renderTopUser(
+            topReactions[0],
+            <ThumbsUp className="w-5 h-5" />,
+            "Reacts",
+            topReactions[0]?.reactions_count || 0
+          )}
+          {renderTopUser(
+            topFriends[0],
+            <Users className="w-5 h-5" />,
+            "Friends",
+            topFriends[0]?.friends_count || 0
+          )}
+          {renderTopUser(
+            topRewards[0],
+            <Coins className="w-5 h-5" />,
+            "Reward",
+            topRewards[0]?.total_reward || 0
+          )}
         </CardContent>
       </Card>
 
