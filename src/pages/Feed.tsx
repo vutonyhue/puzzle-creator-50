@@ -42,16 +42,19 @@ const Feed = () => {
         .from('posts')
         .select(`
           *,
-          profiles (username, avatar_url),
+          profiles!posts_user_id_fkey (username, avatar_url),
           reactions (id, user_id),
           comments (id)
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching posts:', error);
+        throw error;
+      }
       setPosts(data || []);
     } catch (error) {
-      // Error fetching posts - silent fail
+      console.error('Failed to fetch posts:', error);
     } finally {
       setLoading(false);
     }
