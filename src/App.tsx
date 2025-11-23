@@ -18,6 +18,7 @@ import Friends from "./pages/Friends";
 import Profile from "./pages/Profile";
 import Wallet from "./pages/Wallet";
 import Post from "./pages/Post";
+import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,6 +42,7 @@ const App = () => (
                     <Route path="/profile/:userId" element={<Profile />} />
                     <Route path="/wallet" element={<Wallet />} />
                     <Route path="/post/:postId" element={<Post />} />
+                    <Route path="/about" element={<About />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </BrowserRouter>
